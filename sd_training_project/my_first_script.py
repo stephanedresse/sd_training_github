@@ -14,3 +14,16 @@ while i<10:
     i +=1
 
 print(my_number_list)
+
+
+#THIS IS THE START OF MY NEW BRANCH
+print ("This is the start of my new branch")
+
+for letter in "hello, what about this":
+    if letter in "aeiou":
+        print(f"{letter} is a vowel")
+    else:  
+        print(f"{letter} is a consonant")
+
+#héhé
+#hoho
