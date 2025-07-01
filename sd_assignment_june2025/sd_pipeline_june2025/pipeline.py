@@ -14,7 +14,7 @@ def with_papermill():
 @with_papermill.task
 def run_notebook():
     current_run.log_info("Launching the notebook...")
-    input_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "notebook_extraction_dhis2.ipynb")
+    input_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "notebook_extraction_dhis2.ipynb")
     output_path = f"{workspace.files_path}/simple_notebook_output_{datetime.now(timezone.utc).isoformat()}.ipynb"
     pm.execute_notebook(
         input_path=input_path,
