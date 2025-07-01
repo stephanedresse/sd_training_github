@@ -1,10 +1,12 @@
+import json
 from time import sleep
 import pandas as pd
 
-from openhexa.sdk import current_run, pipeline
+from openhexa.sdk import current_run, pipeline, workspace
+from sqlalchemy import create_engine, Integer, String
 
 
-@pipeline("simple-etl")
+@pipeline("simple-etl", timeout=10)  # Timeout in seconds)
 def simple_etl():
     people_data = extract_people_data()
     activity_data = extract_activity_data()
@@ -25,16 +27,8 @@ def extract_people_data():
 @simple_etl.task
 def extract_activity_data():
     current_run.log_info(f"Extracting activity data...")
-    sleep(4)  # Let's pretend we are querying an external system
-
-    return pd.DataFrame([{"id": 1, "person": 1, "activity": "Activity 1"},
-                         {"id": 1, "person": 1, "activity": "Activity 1"},
-                         {"id": 1, "person": 1, "activity": "Activity 2"},
-                         {"id": 1, "person": 1, "activity": "Activity 3"},
-                         {"id": 1, "person": 2, "activity": "Activity 2"},
-                         {"id": 2, "person": 2, "activity": "Activity 3"},
-                         {"id": 2, "person": 3, "activity": "Activity 1"},
-                         {"id": 2, "person": 3, "activity": "Activity 2"}]).set_index("id")
+    with open(f"{workspace.files_path}/activities.json", "r") as activities_file:
+        return pd.DataFrame(json.load(activities_file)["activities"]).set_index("id")
 
 
 @simple_etl.task
@@ -48,6 +42,17 @@ def transform(people_data, activity_data):
 @simple_etl.task
 def load(transformed_data):
     current_run.log_info(f"Loading data ({len(transformed_data)} records)")
+
+    output_path = f"{workspace.files_path}/transformed.csv"
+    transformed_data.to_csv(output_path)
+    current_run.add_file_output(output_path)
+
+    engine = create_engine(workspace.database_url)
+    
+    # Let's use chunksize to control memory usage, and dtype to avoid weird casting issues
+    transformed_data.to_sql("transformed", if_exists="replace", con=engine,
+                            chunksize=100, dtype={"id": Integer(), "first_name": String(), "last_name": String()})
+    current_run.add_database_output("transformed")
 
 
 if __name__ == "__main__":
