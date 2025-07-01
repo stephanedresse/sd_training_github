@@ -1,3 +1,4 @@
+#Add "openhexa pipelines push ." in terminal to push the pipeline to OpenHexa
 import json
 from time import sleep
 import pandas as pd
