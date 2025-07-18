@@ -77,7 +77,7 @@ def run_notebook(user_name, politesse_lvl, data_element_list):
 
     # Recherche du fichier CSV produit par le notebook
     date_today = datetime.now().strftime("%Y-%m-%d")
-    csv_filename = f"agg_df_{date_today}.csv"
+    csv_filename = f"agg_df_{date_today}_{user_name}.csv"
     csv_output_path = os.path.join(output_dir, csv_filename)
 
     current_run.log_debug(f"Looking for CSV output at: {csv_output_path}")
