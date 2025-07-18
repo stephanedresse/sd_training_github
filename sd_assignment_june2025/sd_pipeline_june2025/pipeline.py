@@ -64,7 +64,8 @@ def run_notebook(user_name, politesse_lvl, data_element_list):
             parameters={
                 "user_name": user_name,
                 "data_element_list": data_element_list,
-                "politesse_lvl": politesse_lvl
+                "politesse_lvl": politesse_lvl,
+                "output_dir": output_dir,
             },
             request_save_on_cell_execute=False,
             progress_bar=False
