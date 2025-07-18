@@ -6,7 +6,7 @@ from datetime import datetime
 import papermill as pm
 
 
-@pipeline("with-papermill", timeout=720)  # 12 minutes (en secondes)
+@pipeline(name="Extraction DHIS2 avec Papermill", timeout=720)
 @parameter("user_name", name="User name", type=str, default="Stephane", help="Nom de l'utilisateur")
 @parameter("politesse_lvl", name="Niveau de politesse", type=str, choices=['rude', 'respectueux','frotte manche'], default='respectueux', help="Choix du niveau de politesse")
 @parameter("data_element_list", name="Data Element List", type=str, choices=["DE_list_1", "DE_list_2"], default="DE_list_1", help="Choix de la liste des Data Elements")
