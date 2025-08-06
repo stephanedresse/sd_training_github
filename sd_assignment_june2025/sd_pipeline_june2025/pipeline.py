@@ -32,13 +32,65 @@ def get_output_dir(subfolder="outputs_dhis2"):
 @parameter("data_element_list", name="Data Element List", type=str,
            choices=["DE_list_1", "DE_list_2"], default="DE_list_1",
            help="Choix de la liste des Data Elements")
-def with_papermill(user_name, politesse_lvl, data_element_list):
+@parameter(
+    "ou_group_name", 
+    name="Organisation Unit Group", 
+    type=str,
+    choices=[
+        "CHC",
+        "CHP",
+        "Chiefdom",
+        "Clinic",
+        "Country",
+        "District",
+        "Eastern Area",
+        "Hospital",
+        "MCHP",
+        "Mission",
+        "NGO",
+        "Northern Area",
+        "Private Clinic",
+        "Public facilities",
+        "Rural",
+        "Southern Area",
+        "Urban",
+        "Western Area",
+    ],
+    default="Clinic",
+    help="Choix du groupe d'organisations"
+)
+def with_papermill(user_name, politesse_lvl, data_element_list, ou_group_name):
     current_run.log_info("Pipeline started.")
-    run_notebook(user_name, politesse_lvl, data_element_list)
+    run_notebook(user_name, politesse_lvl, data_element_list, ou_group_name)
+
 
 
 @with_papermill.task
-def run_notebook(user_name, politesse_lvl, data_element_list):
+def run_notebook(user_name, politesse_lvl, data_element_list, ou_group_name):
+
+    ou_groups_dict = {
+        "CHC": "CXw2yu5fodb",
+        "Chiefdom": "gzcv65VyaGq",
+        "CHP": "uYxK4wmcPqA",
+        "Clinic": "RXL3lPSK8oG",
+        "Country": "RpbiCJpIYEj",
+        "District": "w1Atoz18PCL",
+        "Eastern Area": "nlX2VoouN63",
+        "Hospital": "tDZVQ1WtwpA",
+        "MCHP": "EYbopBOJWsW",
+        "Mission": "w0gFTTmsUcF",
+        "NGO": "PVLOW4bCshG",
+        "Northern Area": "J40PpdN4Wkk",
+        "Private Clinic": "MAs88nJc9nL",
+        "Public facilities": "oRVt7g429ZO",
+        "Rural": "GGghZsfu7qV",
+        "Southern Area": "jqBqIXoXpfy",
+        "Urban": "f25dqv3Y7Z0",
+        "Western Area": "b0EsAxm8Nge"
+    }
+    org_unit_group_id = ou_groups_dict.get(ou_group_name)
+
+    current_run.log_info(f"Groupe sélectionné: NOM = {ou_group_name}, ID = {org_unit_group_id}")
     # Message personnalisé
     message_de_politesse = {
         "rude": "Pas trop tôt, enfin qqn test cette pipeline!",
@@ -46,7 +98,8 @@ def run_notebook(user_name, politesse_lvl, data_element_list):
         "frotte manche": "C'est vraiment génial que vous testiez cette pipeline, vous êtes vraiment exceptionnel !"
     }.get(politesse_lvl, "Merci.")
 
-    current_run.log_info(f"Les paramètres choisis sont : {user_name}, {politesse_lvl}, {data_element_list}")
+    current_run.log_info(f"Les paramètres choisis sont : {user_name}, {politesse_lvl}, {data_element_list}, {ou_group_name}")
+
 
     # Chemins
     input_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "notebook_extraction_dhis2.ipynb")
@@ -66,6 +119,8 @@ def run_notebook(user_name, politesse_lvl, data_element_list):
                 "data_element_list": data_element_list,
                 "politesse_lvl": politesse_lvl,
                 "output_dir": output_dir,
+                "ou_group_name": ou_group_name,
+                "org_unit_group_id": org_unit_group_id 
             },
             request_save_on_cell_execute=False,
             progress_bar=False
@@ -86,11 +141,13 @@ def run_notebook(user_name, politesse_lvl, data_element_list):
         current_run.add_file_output(csv_output_path)
     else:
         current_run.log_warning(f"CSV output file not found at expected path: {csv_output_path}")
+    
 
     current_run.log_info("Task done!")
     current_run.log_info("Pipeline finished.")
     current_run.log_info(message_de_politesse)
-
+    
+   
 
 if __name__ == "__main__":
     with_papermill()
